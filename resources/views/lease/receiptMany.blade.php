@@ -153,13 +153,13 @@
                 <tr>
                     <td>Slaves#</td>
                     <td>:</td>
-
-                    @foreach ($billsale->devices as $slave)
-                        <td style="font-size:15px;width:5px"><strong>{{ $slave->Devicenumber }}</strong>
-                    @endforeach
-                    <td style="font-size:15px;width:5px"><strong>{{ $billsale->slavename }}</strong></td>
-
-
+                    <td style="font-size:15px; width:5px">
+                        <ul>
+                            @foreach ($billsale->devices as $slave)
+                                <li><strong>{{ $slave->Devicenumber }}</strong></li>
+                            @endforeach
+                        </ul>
+                    </td>
                 </tr>
             @endif
         </table>

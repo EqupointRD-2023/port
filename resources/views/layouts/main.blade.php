@@ -88,7 +88,7 @@
                         <a href="{{ route('lease') }}" class="nav-item nav-link ">LEASING </a>
                         <a href="{{ route('lease-history') }}" class="nav-item nav-link ">LEASING HISTORY</a>
                         <a href="{{ route('lease-report-port') }}" class="nav-item nav-link ">LEASING REPORT</a>
-                        <a href="{{ route('report-all') }}" class="nav-item nav-link ">REPORT</a>
+                        {{-- <a href="{{ route('report-all') }}" class="nav-item nav-link ">REPORT</a> --}}
                     </div>
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Logout</a>

@@ -67,12 +67,12 @@ class LeaseController extends Controller
     public function filter(Request $request)
     {
         if ($request['lease_type'] == 2) {
-            $report = Lease::with('master', 'devices', 'customer', 'border', 'tager', 'tag')
+            $report = Lease::with('master', 'devices', 'customer', 'border', 'tager', 'tag', 'devices')
                 ->where('lease_type', $request->leasetype)
                 ->where('customer_id', $request->customer_id)
                 ->whereBetween('created_at', [$request->from, $request->to])->get();
         } else {
-            $report = Lease::with('master', 'devices', 'customer', 'border', 'tager', 'tag')
+            $report = Lease::with('master', 'devices', 'customer', 'border', 'tager', 'tag', 'devices')
                 ->where('lease_type', $request->leasetype)
                 ->whereBetween('created_at', [$request->from, $request->to])->get();
         }
@@ -834,7 +834,7 @@ class LeaseController extends Controller
     public function receipt($id)
     {
         // dd($id);
-        $leases = Lease::with('master', 'devices', 'customer', 'border', 'tager', 'tag')->where('lease_number', $id)->where('tager_id', auth()->user()->id)->get()->unique('lease_number');
+        $leases = Lease::with('master', 'devices', 'customer', 'border', 'tager', 'tag', 'devices')->where('lease_number', $id)->where('tager_id', auth()->user()->id)->get()->unique('lease_number');
         // dd($leaseToCompare);
         return view('lease.receipt', [
             'leases' => $leases,

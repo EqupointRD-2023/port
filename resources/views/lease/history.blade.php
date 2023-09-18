@@ -145,7 +145,7 @@
                                 <td>Receipt No.</td>
                                 <td style="text-align:right">{{ $dt->lease_number }}</td>
                             </tr>
-                            @if ($dt->slave == null)
+                            @if ($dt->devices == null)
                                 <tr>
                                     <td>Master #:</td>
                                     <td style="text-align:right">

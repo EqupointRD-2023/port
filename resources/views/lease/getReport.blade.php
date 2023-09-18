@@ -60,7 +60,7 @@
                             <td>
                                 @foreach ($dt->devices as $key => $slave)
                                     <?php $totalkeys = $key + 1; ?>
-                                    [{{ $totalkeys }}]={{ $slave->Devicenumber }}
+                                    {{ $slave->Devicenumber }}
                                 @endforeach
                             </td>
                             <td>{{ $dt->customer_name ?? $dt->customer->compy_name }}</td>
