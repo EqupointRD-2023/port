@@ -33,17 +33,20 @@ class HomeController extends Controller
         $user = auth()->user();
         if ($user->hasAnyRole(['Tag Operator', 'UnTag Operator'])) {
             $masterStockyesterday = PortStock::whereDate('created_at', '<', Carbon::today())
+                ->where('status', 0)
                 ->whereHas('device', function ($query) {
                     $query->where('devicetype', 1);
                 })
                 ->count();
 
-            $totalLeaseMasteryesterday = Lease::whereHas('master', function ($query) {
-                $query->where('devicetype', 1);
-            })
-                ->where('tager_id', auth()->user()->id)
-                ->whereDate('created_at', '<', Carbon::today())->count();
-            $openingMaster = $masterStockyesterday - $totalLeaseMasteryesterday;
+            $masterStockyesterda2 = PortStock::whereDate('created_at', '<', Carbon::today())
+                ->whereDate('status_updated_at', Carbon::today())
+                ->whereHas('device', function ($query) {
+                    $query->where('devicetype', 1);
+                })
+                ->count();
+
+            $openingMaster = $masterStockyesterday + $masterStockyesterda2;
 
             // dd($openingMaster);
 
@@ -54,13 +57,21 @@ class HomeController extends Controller
                 ->whereDate('created_at', '<', Carbon::today())->count();
 
             $slaveStockyesterday = PortStock::whereDate('created_at', '<', Carbon::today())
+                ->where('status', 0)
                 ->whereHas('device', function ($query) {
-                    $query->where('devicetype', 2)->where('status', 0);
+                    $query->where('devicetype', 2);
+                })
+                ->count();
+
+            $slaveStockyesterday2 = PortStock::whereDate('created_at', '<', Carbon::today())
+                ->whereDate('status_updated_at', Carbon::today())
+                ->whereHas('device', function ($query) {
+                    $query->where('devicetype', 2);
                 })
                 ->count();
             // dd($slaveStockyesterday);
 
-            $openingSlave = $slaveStockyesterday - $totalLeaseSlaveyesterday;
+            $openingSlave = $slaveStockyesterday + $slaveStockyesterday2;
 
             $today = now()->format('Y-m-d'); // Get the current date in 'Y-m-d' format
 
@@ -136,6 +147,8 @@ class HomeController extends Controller
             $totalleaseMaster = Lease::where('tager_id', auth()->user()->id)
                 ->whereDate('created_at', Carbon::today())->count();
 
+            // dd($totalLeaseMaster);
+
             $leases = Lease::with('devices')
                 ->where('tager_id', auth()->user()->id)
                 ->whereDate('created_at', Carbon::today())
@@ -192,17 +205,20 @@ class HomeController extends Controller
     public function index2()
     {
         $masterStockyesterday = PortStock::whereDate('created_at', '<', Carbon::today())
+            ->where('status', 0)
             ->whereHas('device', function ($query) {
                 $query->where('devicetype', 1);
             })
             ->count();
 
-        $totalLeaseMasteryesterday = Lease::whereHas('master', function ($query) {
-            $query->where('devicetype', 1);
-        })
-            ->where('tager_id', auth()->user()->id)
-            ->whereDate('created_at', '<', Carbon::today())->count();
-        $openingMaster = $masterStockyesterday - $totalLeaseMasteryesterday;
+        $masterStockyesterda2 = PortStock::whereDate('created_at', '<', Carbon::today())
+            ->whereDate('status_updated_at', Carbon::today())
+            ->whereHas('device', function ($query) {
+                $query->where('devicetype', 1);
+            })
+            ->count();
+
+        $openingMaster = $masterStockyesterday + $masterStockyesterda2;
 
         // dd($openingMaster);
 
@@ -213,13 +229,21 @@ class HomeController extends Controller
             ->whereDate('created_at', '<', Carbon::today())->count();
 
         $slaveStockyesterday = PortStock::whereDate('created_at', '<', Carbon::today())
+            ->where('status', 0)
             ->whereHas('device', function ($query) {
-                $query->where('devicetype', 2)->where('status', 0);
+                $query->where('devicetype', 2);
+            })
+            ->count();
+
+        $slaveStockyesterday2 = PortStock::whereDate('created_at', '<', Carbon::today())
+            ->whereDate('status_updated_at', Carbon::today())
+            ->whereHas('device', function ($query) {
+                $query->where('devicetype', 2);
             })
             ->count();
         // dd($slaveStockyesterday);
 
-        $openingSlave = $slaveStockyesterday - $totalLeaseSlaveyesterday;
+        $openingSlave = $slaveStockyesterday + $slaveStockyesterday2;
 
         $today = now()->format('Y-m-d'); // Get the current date in 'Y-m-d' format
 
@@ -227,7 +251,7 @@ class HomeController extends Controller
             $query->where('request_id', auth()->user()->id)->whereDate('created_at', Carbon::today());
         })->whereHas('device', function ($query) {
             $query->where('devicetype', 1);
-        })->count();
+        })->where('dispatchStatus', 1)->count();
 
         // dd($receivedMaster);
 
@@ -235,7 +259,7 @@ class HomeController extends Controller
             $query->where('request_id', auth()->user()->id)->whereDate('created_at', Carbon::today());
         })->whereHas('device', function ($query) {
             $query->where('devicetype', 2);
-        })->count();
+        })->where('dispatchStatus', 1)->count();
 
         $leaseCashMaster = Lease::whereHas('master', function ($query) {
             $query->where('devicetype', 1);

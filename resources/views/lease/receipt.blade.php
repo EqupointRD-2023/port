@@ -284,7 +284,7 @@
                 <td>Amount</td>
                 <td>:</td>
                 <td style="text-align:right">
-                    {{ $billsale->master_price + $billsale->slave_price }}
+                    {{ $billsale->master_price + $billsale->slave_price }} {{ $billsale->pricetype }}
                 </td>
 
             </tr>

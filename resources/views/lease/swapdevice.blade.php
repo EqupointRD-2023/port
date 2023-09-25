@@ -85,13 +85,9 @@
                                 <div class="mt-3">
                                     <label for="">Current Slave - {{ $key + 1 }} </label>
                                     <select name="slave_old[]" class="form-control" disabled>
-                                        <option value="{{ $slave->slave->id }}">{{ $slave->slave->Devicenumber }}
-                                        </option>
-                                    </select>
-
-                                    <select name="slave_old[]" class="form-control" hidden>
-                                        <option value="" selected>select</option>
-                                        <option value="{{ $slave->slave->id }}">{{ $slave->slave->Devicenumber }}
+                                        @foreach ($slave->devices as $slaveDevice)
+                                            <option value="{{ $slaveDevice->id }}">{{ $slaveDevice->Devicenumber }}
+                                        @endforeach
                                         </option>
                                     </select>
                                 </div>

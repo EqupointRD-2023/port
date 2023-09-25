@@ -17,10 +17,11 @@ class SwapDeviceController extends Controller
     {
         // dd($id);
 
-        $devices = PortStock::with('device')->where('user_id', auth()->user()->id)->get();
+        $devices = PortStock::with('device')->where('status', 0)->where('user_id', auth()->user()->id)->get();
         $leases = Lease::with('master', 'devices')->where('lease_number', $id)->where('tager_id', auth()->user()->id)->first();
         $all = Lease::with('master', 'devices')->where('lease_number', $id)->where('tager_id', auth()->user()->id)->get();
         // dd($devices);
+
         return view(
             'lease.swapdevice',
             [
@@ -96,18 +97,20 @@ class SwapDeviceController extends Controller
                                 'lease_number' => $lease->id,
                                 'master_id' => $lease->master_id,
                                 'master_new_id' => $request->master,
-                                'slave_id' => NULL,
-                                'slave_new_id' => NULL,
+                                'slave_id' => null,
+                                'slave_new_id' => null,
                             ]);
                         }
                     }
                 }
 
                 toastr()->success('Swapped Successfully', 'Successfully');
+
                 return back();
             }
         } catch (Exception $error) {
             toastr()->error($error->getMessage(), 'Ooops!');
+
             return back();
         }
     }
@@ -117,6 +120,8 @@ class SwapDeviceController extends Controller
         // $lease = Lease::where('lease_number', $request->lease_number)->first();
         $slave = $request->input('slave_old');
         $slave_new = $request->input('slave');
+
+        dd($slave_new);
 
         try {
             foreach ($slave as $dt) {
@@ -136,7 +141,7 @@ class SwapDeviceController extends Controller
                     ->first();
                 foreach ($slave_new as $dt_new) {
 
-                    if ((int)$dt_new == 0) {
+                    if ((int) $dt_new == 0) {
                         $update = $lease->update([
                             'master_id' => $request->master ?? $lease->master_id,
                             // 'slave_id' => (int)$dt_new ?? $lease->slave_id,
@@ -153,7 +158,7 @@ class SwapDeviceController extends Controller
                     } else {
                         $update = $lease->update([
                             'master_id' => $request->master ?? $lease->master_id,
-                            'slave_id' => (int)$dt_new,
+                            'slave_id' => (int) $dt_new,
                         ]);
                         if ($update) {
                             SwapDevice::create([
@@ -161,22 +166,22 @@ class SwapDeviceController extends Controller
                                 'master_id' => $lease->master_id,
                                 'master_new_id' => $request->master,
                                 'slave_id' => $lease->slave_id,
-                                'slave_new_id' => (int)$dt_new,
+                                'slave_new_id' => (int) $dt_new,
                             ]);
                         }
                     }
                 }
 
                 toastr()->success('Swapped Successfully', 'Successfully');
+
                 return back();
             }
         } catch (Exception $error) {
             toastr()->error($error->getMessage(), 'Ooops!');
+
             return back();
         }
     }
-
-
 
     /**
      * Show the form for editing the specified resource.

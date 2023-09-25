@@ -8,6 +8,7 @@ use App\Models\Lease;
 use App\Models\PortStock;
 use App\Models\Price;
 use App\Models\TagPoints;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -135,7 +136,9 @@ class LeaseController extends Controller
                     foreach ($request['slave'] as $slave) {
                         $slave = PortStock::where('device_id', $slave)->first();
                         $slave->update([
+                            'last_status' => $slave->status,
                             'status' => 1,
+                            'status_updated_at' => Carbon::today(),
                         ]);
                     }
                     toastr()->success('Leased Successfully', 'Successfully');
@@ -181,7 +184,9 @@ class LeaseController extends Controller
                 toastr()->error($error->getMessage(), 'oops');
                 $master = PortStock::where('device_id', $request['master'])->first();
                 $master->update([
+                    'last_status' => $master->status,
                     'status' => 1,
+                    'status_updated_at' => Carbon::today(),
                 ]);
 
                 return back();
@@ -215,7 +220,9 @@ class LeaseController extends Controller
                     toastr()->success('Leased Successfully', 'Successfully');
                     $master = PortStock::where('device_id', $request['master'])->first();
                     $master->update([
+                        'last_status' => $master->status,
                         'status' => 1,
+                        'status_updated_at' => Carbon::today(),
                     ]);
 
                     return back();
@@ -258,7 +265,9 @@ class LeaseController extends Controller
                 toastr()->error($error->getMessage(), 'oops');
                 $master = PortStock::where('device_id', $request['master'])->first();
                 $master->update([
+                    'last_status' => $master->status,
                     'status' => 1,
+                    'status_updated_at' => Carbon::today(),
                 ]);
 
                 return back();
@@ -304,7 +313,9 @@ class LeaseController extends Controller
                     foreach ($request['slave'] as $slave) {
                         $slave = PortStock::where('device_id', $slave)->first();
                         $slave->update([
+                            'last_status' => $slave->status,
                             'status' => 1,
+                            'status_updated_at' => Carbon::today(),
                         ]);
                     }
                     toastr()->success('Leased Successfully', 'Successfully');
@@ -348,7 +359,9 @@ class LeaseController extends Controller
                     toastr()->success('Leased Successfully', 'Successfully');
                     $master = PortStock::where('device_id', $request['master'])->first();
                     $master->update([
+                        'last_status' => $master->status,
                         'status' => 1,
+                        'status_updated_at' => Carbon::today(),
                     ]);
 
                     return back();
@@ -390,7 +403,9 @@ class LeaseController extends Controller
                     toastr()->success('Leased Successfully', 'Successfully');
                     $master = PortStock::where('device_id', $request['master'])->first();
                     $master->update([
+                        'last_status' => $master->status,
                         'status' => 1,
+                        'status_updated_at' => Carbon::today(),
                     ]);
 
                     return back();
@@ -430,11 +445,11 @@ class LeaseController extends Controller
                 if ($lease) {
                     $master = PortStock::where('device_id', $request['master'])->first();
                     $master->update([
+                        'last_status' => $master->status,
                         'status' => 1,
+                        'status_updated_at' => Carbon::today(),
                     ]);
-
                     toastr()->success('Leased Successfully', 'Successfully');
-
                     return back();
                 }
             } catch (Exception $error) {
