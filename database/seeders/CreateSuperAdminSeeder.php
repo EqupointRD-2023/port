@@ -2,12 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use Hash;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Database\Seeder;
 
 class CreateSuperAdminSeeder extends Seeder
 {
@@ -19,9 +15,9 @@ class CreateSuperAdminSeeder extends Seeder
         $user = User::create([
             'name' => 'EMS SuperAdmin',
             'email' => 'admin@ems.com',
-            'password' => bcrypt('admin123')
+            'password' => bcrypt('admin123'),
         ]);
 
-        $user->assignRole("Super Admin");
+        $user->assignRole('Super Admin');
     }
 }

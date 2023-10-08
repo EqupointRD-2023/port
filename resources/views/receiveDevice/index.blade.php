@@ -55,7 +55,7 @@
                                                 <td>{{ $dispatch->requisition->quantity }}</td>
                                                 <td>{{ $dispatchDevice }}</td>
                                                 <td>
-                                                    @if ($dispatch->dispatchStatus == 0)
+                                                    @if ($dispatch->status == 0)
                                                         <form
                                                             action="{{ route('receiveDeviceToStcok', $dispatch->dispatchNo) }}"
                                                             method="post">

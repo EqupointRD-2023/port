@@ -91,20 +91,6 @@
                             </select>
                         </div>
 
-                        <div class="mt-4">
-                            <label>Select Master:</label>
-                            <select name="master" class="js-example-disabled-results form-control mt-2">
-                                <option selected>select</option>
-                                @foreach ($devices as $device)
-                                    @if ($device->device[0]->devicetype == 1)
-                                        <option value="{{ $device->device[0]->id }}">{{ $device->device[0]->Devicenumber }}
-                                        </option>
-                                    @endif
-                                @endforeach
-                            </select>
-                        </div>
-
-
 
                         <div class="mt-4">
                             <label for="selectNumber">Cargo Type:</label>
@@ -116,18 +102,43 @@
                             </select>
                         </div>
 
-                        <div class="mt-4" id="hiddenInputWrapper" style="display: none;" class="mt-2">
+                        <div class="mt-4">
+                            <label>Select Master:</label>
+                            <select name="master" id="masterSelect" class="js-example-disabled-results form-control mt-2">
+                                <option selected>select</option>
+                                @foreach ($devices as $device)
+                                    @if ($device->device[0]->devicetype == 1)
+                                        <option value="{{ $device->device[0]->id }}"
+                                            data-dispatch-slaves="{{ json_encode($device->dispatch_slave) }}">
+                                            {{ $device->device[0]->Devicenumber }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+
+                        </div>
+
+                        <div class="mt-4" id="hiddenInputWrapper" style="display: none;"">
+                            <label style="font-weight: 900">Slaves:</label>
+                            <ul id="dispatchSlavesList">
+                            </ul>
+                        </div>
+
+
+
+
+                        {{-- <div class="mt-4" id="hiddenInputWrapper" style="display: none;" class="mt-2">
                             <label for="hiddenInput">Select Slave:</label>
                             <select name='slave[]' id="selectMultiple" class="js-example-basic-multiple-limit form-control"
                                 multiple>
                                 @foreach ($devices as $device)
                                     @if ($device->device[0]->devicetype == 2)
-                                        <option value="{{ $device->device[0]->id }}">{{ $device->device[0]->Devicenumber }}
+                                        <option value="{{ $device->device[0]->id }}">
+                                            {{ $device->device[0]->Devicenumber }}
                                         </option>
                                     @endif
                                 @endforeach
                             </select>
-                        </div>
+                        </div> --}}
 
 
 
@@ -243,7 +254,7 @@
 
 
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
@@ -342,6 +353,30 @@
                 // Disable the submit button to prevent multiple submissions
                 submitButton.disabled = true;
             });
+        });
+    </script>
+
+
+    <script>
+        console.log('Script is running');
+        $('#masterSelect').on('change', function() {
+            console.log('Dropdown change event triggered');
+            var selectedOption = $(this).find('option:selected');
+            var dispatchSlavesData = selectedOption.data('dispatch-slaves');
+
+            console.log('Selected Option Data:', dispatchSlavesData);
+
+            $('#dispatchSlavesList').empty();
+
+            // Iterate through the dispatchSlavesData and extract Devicenumber
+            for (var i = 0; i < dispatchSlavesData.length; i++) {
+                var dispatchSlave = dispatchSlavesData[i];
+                var deviceNumber = dispatchSlave.device[0].Devicenumber; // Extract Devicenumber
+                console.log('Device Number:', deviceNumber);
+
+                // Add the deviceNumber to your list
+                $('#dispatchSlavesList').append('<li>' + deviceNumber + '</li>');
+            }
         });
     </script>
 

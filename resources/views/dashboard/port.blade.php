@@ -188,8 +188,8 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>0</td>
-                                                <td>0</td>
+                                                <td>{{ $returnedDeviceMaster }}</td>
+                                                <td>{{ $returnedDeviceSlave }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -216,11 +216,43 @@
                     <form action="{{ route('coment') }}" method="post">
                         @csrf
                         @if ($coment <= 0)
-                            <h2 class="text-center h6">Comment:</h2>
+                            <div>
+                                <div class="row">
+                                    <div class="col-md 6">
+                                        <h2 class="text-center h6">Currency:</h2>
+                                        <select name="currency" id="" class="form-control">
+                                            <option value="TZS" selected>TZS</option>
+                                            <option value="USD">USD</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md 6">
+                                        <h2 class="text-center h6">Amount:</h2>
+                                        <input name="amount" type="number" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h2 class="text-center h6 mt-5">Comment:</h2>
                             <textarea name="comment" id="" cols="10" rows="10" class="form-control"></textarea>
-                            <button class="btn btn-primary mt-2">Send</button>
+                            <button class="btn btn-primary  mt-2">Send</button>
                         @else
-                            <h2 class="text-center h6">Comment:</h2>
+                            <div>
+                                <div class="row">
+                                    <div class="col-md 6">
+                                        <h2 class="text-center h6">Currency:</h2>
+                                        <select name="currency" id="" class="form-control" disabled>
+                                            <option value="TZS" selected>{{ $mycomment->currency }}</option>
+                                            {{-- <option value="USD">USD</option> --}}
+                                        </select>
+                                    </div>
+                                    <div class="col-md 6">
+                                        <h2 class="text-center h6">Amount:</h2>
+                                        <input name="amount" placeholder="{{ $mycomment->amount }}" type="number"
+                                            class="form-control" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                            <h2 class="text-center h6 mt-4">Comment:</h2>
                             <textarea disabled name="" id="" cols="10" rows="10" value='{{ $mycomment }}'
                                 placeholder="{{ $mycomment->comment }}" class="form-control"></textarea>
                             {{-- <button class="btn btn-primary mt-2">Send</button> --}}

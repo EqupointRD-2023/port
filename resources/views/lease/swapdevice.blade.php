@@ -58,7 +58,6 @@
                                 <input type="text" readonly="" value="{{ $leases->master->Devicenumber }}"
                                     class="form-control" name="master_old">
                             </div>
-
                         </div>
 
                         <div id="" class="form-group mt-3">
@@ -80,17 +79,22 @@
 
 
 
-                        @foreach ($all as $key => $slave)
+                        @foreach ($leases->devices as $key => $slaveDevice)
                             <div class="form-group mt-3">
                                 <div class="mt-3">
                                     <label for="">Current Slave - {{ $key + 1 }} </label>
-                                    <select name="slave_old[]" class="form-control" disabled>
-                                        @foreach ($slave->devices as $slaveDevice)
-                                            <option value="{{ $slaveDevice->id }}">{{ $slaveDevice->Devicenumber }}
-                                        @endforeach
+                                    <select class="form-control" disabled>
+                                        <option value="{{ $slaveDevice->id }}">
+                                            {{ $slaveDevice->Devicenumber }}
                                         </option>
                                     </select>
                                 </div>
+
+                                <select name="slave_old[]" class="form-control" hidden>
+                                    <option value="{{ $slaveDevice->id }}">
+                                        {{ $slaveDevice->Devicenumber }}
+                                    </option>
+                                </select>
                             </div>
 
                             <div id="" class="form-group mt-3">
@@ -101,10 +105,12 @@
                                         data-live-search="true">
                                         <option value="" selected>[SELECT Slave]</option>
                                         @foreach ($devices as $key => $dt)
-                                            @if ($dt->device[0]->devicetype == 2)
-                                                <option value="{{ $dt->device[0]->id }}">
-                                                    {{ $dt->device[0]->Devicenumber }}
-                                                </option>
+                                            @if ($dt->device[0]->devicetype == 1)
+                                                @foreach ($dt->dispatch_slave as $slave)
+                                                    <option value="{{ $slave->device[0]->id }}">
+                                                        {{ $slave->device[0]->Devicenumber }}
+                                                    </option>
+                                                @endforeach
                                             @endif
                                         @endforeach
                                     </select>

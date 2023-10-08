@@ -6,7 +6,10 @@ use App\Jobs\ReturnDeviceToStock;
 use App\Jobs\SendDeviceToPortStock;
 use App\Models\Device;
 use App\Models\Dispatch;
-use App\Models\PortStock;
+use App\Models\Dispatch_masters;
+use App\Models\Dispatch_slaves;
+use App\Models\PortStock_masters;
+use App\Models\PortStock_slaves;
 use App\Models\requisitions;
 use Carbon\Carbon;
 use Exception;
@@ -73,7 +76,6 @@ class DispatchController extends Controller
         $devices = Device::where('status', 0)->whereIn('Devicenumber', $deviceIds)->get();
         $masterHb = Device::whereIn('Devicenumber', $deviceIds)
             ->where('devicetype', 1)->where('devicebrand', 1)->where('status', 0)->count();
-
         $masterJt = Device::whereIn('Devicenumber', $deviceIds)
             ->where('devicetype', 1)->where('devicebrand', 2)->where('status', 0)->count();
         $slaveHb = Device::whereIn('Devicenumber', $deviceIds)
@@ -222,7 +224,8 @@ class DispatchController extends Controller
 
     public function receiveDeviceView()
     {
-        $req = requisitions::where('request_id', auth()->user()->id)->where('status', 1)->whereDate('created_at', Carbon::today())->first();
+        // $req = requisitions::where('request_id', auth()->user()->id)->where('status', 1)->whereDate('created_at', Carbon::today())->first();
+        $req = requisitions::with('dispatch_master.dispatch_slave')->where('request_id', auth()->user()->id)->where('status', 1)->whereDate('created_at', Carbon::today())->first();
         // dd($req);
         if ($req == null) {
             return view('receiveDevice.index', [
@@ -231,13 +234,19 @@ class DispatchController extends Controller
                 'dispatchDevice' => null,
             ]);
         }
-        $dispatch = Dispatch::with('device', 'requisition')->where('requestId', $req->id)->whereDate('created_at', Carbon::today())
+        $dispatch = Dispatch_masters::with('device', 'requisition')->where('requestId', $req->id)->whereDate('created_at', Carbon::today())
             ->get()->unique('dispatchNo');
-        $dispatchDevice = Dispatch::withCount('device')
+        // dd($dispatch);
+        $dispatchDevice = Dispatch_masters::withCount('device')
             ->where('requestId', $req->id)
             ->whereDate('created_at', Carbon::today())
             ->count();
-        // dd($dispatch);
+
+        // $dispatchSlaveDevice = Dispatch_slaves::where('requestId', $req->id)
+        //         ->whereDate('created_at', Carbon::today())
+        //         ->count();
+        // dd($dispatchSlaveDevice);
+
         return view('receiveDevice.index', [
             'dispatch' => $dispatch,
             'req' => $req,
@@ -247,21 +256,30 @@ class DispatchController extends Controller
 
     public function receiveDevice($id)
     {
-        $devices = Dispatch::with('device')->where('dispatchNo', $id)->get();
+        $devices = Dispatch_masters::with('device', 'dispatch_slave.device')->where('dispatchNo', $id)->get();
         $disp_id = Dispatch::with('device')->where('dispatchNo', $id)->get();
-        // dd($devices[0]['device'][0]['id']);
+        // dd($devices);
         try {
             foreach ($devices as $device) {
-                // dd($device['device']);
-                PortStock::create([
+                // dd($device);
+                $master = PortStock_masters::create([
                     'user_id' => auth()->user()->id,
-                    'device_id' => $device['device'][0]['id'],
+                    'master_id' => $device['device'][0]['id'],
                 ]);
+
+                foreach ($device['dispatch_slave'] as $slave) {
+                    // dd($slave);
+                    PortStock_slaves::create([
+                        'port_master_id' => $master->id,
+                        'slave_id' => $slave->slave_id,
+                    ]);
+                }
+
                 // SendDeviceToPortStock::dispatch($device['device'][0]['id']);
                 $update = $device->update([
-                    'dispatchStatus' => 1,
+                    'status' => 1,
                 ]);
-                dispatch(new ReturnDeviceToStock($device['device'][0]['id']));
+                // dispatch(new ReturnDeviceToStock($device['device'][0]['id']));
             }
             if ($update) {
                 toastr()->success('Device received successfully!', 'Congrats');

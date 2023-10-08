@@ -6,6 +6,7 @@ use App\Models\Border;
 use App\Models\customer;
 use App\Models\Lease;
 use App\Models\PortStock;
+use App\Models\PortStock_masters;
 use App\Models\Price;
 use App\Models\TagPoints;
 use Carbon\Carbon;
@@ -21,9 +22,9 @@ class LeaseController extends Controller
      */
     public function index()
     {
-        $devices = PortStock::with('device')->
-        where('status', 0)->
+        $devices = PortStock_masters::with('device', 'dispatch_slave.device')->
         where('user_id', auth()->user()->id)->get();
+        // dd($devices);
         $customers = customer::all();
         $borders = Border::all();
         $tagpoints = TagPoints::all();
@@ -54,7 +55,7 @@ class LeaseController extends Controller
         $cash = Lease::where('tager_id', auth()->user()->id)->where('lease_type', 1)->distinct('lease_number')->count();
 
         $bill = Lease::where('tager_id', auth()->user()->id)->where('lease_type', 2)->distinct('lease_number')->count();
-        $leases = Lease::with('master', 'customer', 'border', 'tager', 'tag', 'devices')
+        $leases = Lease::with('lease_master.dispatch_slave.device', 'master', 'customer', 'border', 'tager', 'tag', 'devices')
             ->where('tager_id', auth()->user()->id)->get();
         // dd($leases);
 
@@ -98,7 +99,8 @@ class LeaseController extends Controller
         $startDate = date('Ymd');
         $randomNumber = rand(1000, 9999);
         $leaseNo = 'LE'.$startDate.$randomNumber;
-        // dd($request);
+        $masterNew = PortStock_masters::with('dispatch_slave.device')->where('master_id', $request['master'])->get();
+        // dd($masterNew);
 
         if ($request['currency'] == 1 && $request['cargo_type'] == 4) {
             $price = Price::where('cargo_type', 'TANKER')->first();
@@ -128,19 +130,28 @@ class LeaseController extends Controller
                     'driver_phone' => $request->driverPhone,
                 ]);
                 if ($lease) {
-                    $lease->devices()->attach($request->slave);
-                    $master = PortStock::where('device_id', $request['master'])->first();
-                    $master->update([
-                        'status' => 1,
-                    ]);
-                    foreach ($request['slave'] as $slave) {
-                        $slave = PortStock::where('device_id', $slave)->first();
-                        $slave->update([
-                            'last_status' => $slave->status,
-                            'status' => 1,
-                            'status_updated_at' => Carbon::today(),
+                    // $lease->devices()->attach($masterNew->dispatch_slave->device);
+                    // dd($masterNew);
+                    foreach ($masterNew[0]->dispatch_slave as $slave) {
+                        DB::table('lease_slaves')->insert([
+                            'lease_id' => $lease->id,
+                            'slave_id' => $slave->device[0]->id,
                         ]);
                     }
+                    $master = PortStock_masters::where('master_id', $request['master'])->first();
+                    $master->update([
+                        'last_status' => $master->status,
+                        'status' => 1,
+                        'status_updated_at' => Carbon::today(),
+                    ]);
+                    // foreach ($request['slave'] as $slave) {
+                    //     $slave = PortStock::where('device_id', $slave)->first();
+                    //     $slave->update([
+                    //         'last_status' => $slave->status,
+                    //         'status' => 1,
+                    //         'status_updated_at' => Carbon::today(),
+                    //     ]);
+                    // }
                     toastr()->success('Leased Successfully', 'Successfully');
 
                     return back();
@@ -182,7 +193,8 @@ class LeaseController extends Controller
                 }
             } catch (Exception $error) {
                 toastr()->error($error->getMessage(), 'oops');
-                $master = PortStock::where('device_id', $request['master'])->first();
+                // $master = PortStock::where('device_id', $request['master'])->first();
+                $master = PortStock_masters::where('master_id', $request['master'])->first();
                 $master->update([
                     'last_status' => $master->status,
                     'status' => 1,
@@ -218,7 +230,8 @@ class LeaseController extends Controller
                 ]);
                 if ($lease) {
                     toastr()->success('Leased Successfully', 'Successfully');
-                    $master = PortStock::where('device_id', $request['master'])->first();
+                    // $master = PortStock::where('device_id', $request['master'])->first();
+                    $master = PortStock_masters::where('master_id', $request['master'])->first();
                     $master->update([
                         'last_status' => $master->status,
                         'status' => 1,
@@ -263,7 +276,8 @@ class LeaseController extends Controller
                 }
             } catch (Exception $error) {
                 toastr()->error($error->getMessage(), 'oops');
-                $master = PortStock::where('device_id', $request['master'])->first();
+                // $master = PortStock::where('device_id', $request['master'])->first();
+                $master = PortStock_masters::where('master_id', $request['master'])->first();
                 $master->update([
                     'last_status' => $master->status,
                     'status' => 1,
@@ -304,20 +318,30 @@ class LeaseController extends Controller
                     'driver_phone' => $request->driverPhone,
                 ]);
                 if ($lease) {
-                    $lease->devices()->attach($request->slave);
-                    $master = PortStock::where('device_id', $request['master'])->first();
-                    $master->update([
-                        'status' => 1,
-                    ]);
-
-                    foreach ($request['slave'] as $slave) {
-                        $slave = PortStock::where('device_id', $slave)->first();
-                        $slave->update([
-                            'last_status' => $slave->status,
-                            'status' => 1,
-                            'status_updated_at' => Carbon::today(),
+                    // $lease->devices()->attach($masterNew->dispatch_slave->device);
+                    foreach ($masterNew[0]->dispatch_slave as $slave) {
+                        DB::table('lease_slaves')->insert([
+                            'lease_id' => $lease->id,
+                            'slave_id' => $slave->device[0]->id,
                         ]);
                     }
+                    // $lease->devices()->attach($request->slave);
+                    // $master = PortStock::where('device_id', $request['master'])->first();
+                    $master = PortStock_masters::where('master_id', $request['master'])->first();
+                    $master->update([
+                        'last_status' => $master->status,
+                        'status' => 1,
+                        'status_updated_at' => Carbon::today(),
+                    ]);
+
+                    // foreach ($request['slave'] as $slave) {
+                    //     $slave = PortStock::where('device_id', $slave)->first();
+                    //     $slave->update([
+                    //         'last_status' => $slave->status,
+                    //         'status' => 1,
+                    //         'status_updated_at' => Carbon::today(),
+                    //     ]);
+                    // }
                     toastr()->success('Leased Successfully', 'Successfully');
 
                     return back();
@@ -357,7 +381,8 @@ class LeaseController extends Controller
                 ]);
                 if ($lease) {
                     toastr()->success('Leased Successfully', 'Successfully');
-                    $master = PortStock::where('device_id', $request['master'])->first();
+                    // $master = PortStock::where('device_id', $request['master'])->first();
+                    $master = PortStock_masters::where('master_id', $request['master'])->first();
                     $master->update([
                         'last_status' => $master->status,
                         'status' => 1,
@@ -401,7 +426,8 @@ class LeaseController extends Controller
                 ]);
                 if ($lease) {
                     toastr()->success('Leased Successfully', 'Successfully');
-                    $master = PortStock::where('device_id', $request['master'])->first();
+                    // $master = PortStock::where('device_id', $request['master'])->first();
+                    $master = PortStock_masters::where('master_id', $request['master'])->first();
                     $master->update([
                         'last_status' => $master->status,
                         'status' => 1,
@@ -443,13 +469,15 @@ class LeaseController extends Controller
                     'driver_phone' => $request->driverPhone,
                 ]);
                 if ($lease) {
-                    $master = PortStock::where('device_id', $request['master'])->first();
+                    // $master = PortStock::where('device_id', $request['master'])->first();
+                    $master = PortStock_masters::where('master_id', $request['master'])->first();
                     $master->update([
                         'last_status' => $master->status,
                         'status' => 1,
                         'status_updated_at' => Carbon::today(),
                     ]);
                     toastr()->success('Leased Successfully', 'Successfully');
+
                     return back();
                 }
             } catch (Exception $error) {
@@ -849,7 +877,7 @@ class LeaseController extends Controller
     public function receipt($id)
     {
         // dd($id);
-        $leases = Lease::with('master', 'devices', 'customer', 'border', 'tager', 'tag', 'devices')->where('lease_number', $id)->where('tager_id', auth()->user()->id)->get()->unique('lease_number');
+        $leases = Lease::with('lease_master.dispatch_slave.device', 'master', 'devices', 'customer', 'border', 'tager', 'tag', 'devices')->where('lease_number', $id)->where('tager_id', auth()->user()->id)->get()->unique('lease_number');
         // dd($leaseToCompare);
         return view('lease.receipt', [
             'leases' => $leases,
@@ -859,7 +887,7 @@ class LeaseController extends Controller
     public function manyreceipt(Request $request)
     {
         $leaseNumbers = $request['lease_number'];
-        $leases = Lease::with('master', 'devices', 'customer', 'border', 'tager', 'tag')
+        $leases = Lease::with('lease_master.dispatch_slave.device', 'master', 'devices', 'customer', 'border', 'tager', 'tag')
             ->whereIn('lease_number', $leaseNumbers)
             ->where('tager_id', auth()->user()->id)
             ->get()

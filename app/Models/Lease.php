@@ -54,4 +54,14 @@ class Lease extends Model
     {
         return $this->belongsToMany(Device::class, 'lease_slaves', 'lease_id', 'slave_id');
     }
+
+    public function lease_master()
+    {
+        return $this->belongsTo(Dispatch_masters::class, 'master_id', 'master_id');
+    }
+
+    public function lease_master2()
+    {
+        return $this->belongsTo(PortStock_masters::class, 'master_id', 'master_id');
+    }
 }

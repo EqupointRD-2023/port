@@ -5,16 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Comment extends Model
+class ReturnSlavePort extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'report_id',
-        'user_id',
-        'comment',
-        'currency',
-        'amount',
-        'tagoperator_id',
+
+        'slave_id',
+        'master_id',
     ];
 }

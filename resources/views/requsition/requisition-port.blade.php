@@ -20,13 +20,14 @@
         {{-- $req > 0 ||  --}}
         @if ($req > 0 || $device > 0)
             <div class="alert alert-danger">
-                Your stock has the devices you can't request further.
+                Still you have device in your stock.
             </div>
         @else
             <a href="" type="button" class="btn btn-success w-100 pull-right" data-toggle="modal"
                 data-target="#customer">
                 Request</a>
         @endif
+
 
 
         <br />

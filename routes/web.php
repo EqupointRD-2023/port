@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\DeviceStatusController;
 use App\Http\Controllers\DispatchController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeaseController;
@@ -36,6 +37,7 @@ Route::get('/', function () {
 Route::post('test', [test::class, 'test'])->name('test');
 
 Route::group(['middleware' => ['auth']], function () {
+    Route::get('device/status/{id}', [DeviceStatusController::class, 'show'])->name('status');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/home-port', [HomeController::class, 'index2'])->name('home-port');
     Route::get('/requsition', [RequsitionController::class, 'index2'])->name('requsition');
@@ -72,6 +74,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/dispatch/receive/device', [DispatchController::class, 'receiveDeviceView'])->name('receiveDevice');
     Route::post('/dispatch/{id}/receive', [DispatchController::class, 'receiveDevice'])->name('receiveDeviceToStcok');
     Route::get('/stock/port', [StockController::class, 'index'])->name('stock-port');
+    Route::post('/stock/edit', [StockController::class, 'store'])->name('store-edit');
     Route::post('/stock/{id}/return', [StockController::class, 'create'])->name('stock-return');
     Route::get('/stock/receive', [ReturnedFromPortController::class, 'index'])->name('stock-from-port');
     Route::post('/stock/{id}/receive', [ReturnedFromPortController::class, 'create'])->name('stock-from-port-receive');
