@@ -19,6 +19,26 @@ class SwapDeviceController extends Controller
     {
         // dd($id);
 
+        $devices = PortStock_masters::with('device', 'dispatch_slave.device')
+            ->where('status', 0)->where('user_id', auth()->user()->id)->get();
+        $leases = Lease::with('master', 'lease_master2.dispatch_slave.device', 'devices')->where('lease_number', $id)->where('tager_id', auth()->user()->id)->first();
+        $all = Lease::with('master', 'devices')->where('lease_number', $id)->where('tager_id', auth()->user()->id)->first();
+        // dd($devices);
+
+        return view(
+            'lease.swapdevice',
+            [
+                'devices' => $devices,
+                'leases' => $leases,
+                'all' => $all,
+            ]
+        );
+    }
+
+    public function index_old($id)
+    {
+        // dd($id);
+
         $devices = PortStock_masters::with('device', 'dispatch_slave.device')->where('status', 0)->where('user_id', auth()->user()->id)->get();
         $leases = Lease::with('master', 'lease_master2.dispatch_slave.device', 'devices')->where('lease_number', $id)->where('tager_id', auth()->user()->id)->first();
         $all = Lease::with('master', 'devices')->where('lease_number', $id)->where('tager_id', auth()->user()->id)->first();
@@ -46,6 +66,77 @@ class SwapDeviceController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
+    {
+
+        try {
+            $lease = Lease::with('lease_master.dispatch_slave')
+                ->where('lease_number', $request->lease_number)->first();
+
+            // dd($lease);
+            PortStock_masters::where('user_id', Auth()->user()->id)
+                ->where('master_id', $lease->master_id)
+                ->update(['status' => 0]);
+
+            $master_slave = PortStock_masters::with('dispatch_slave')->where('user_id', Auth()->user()->id)
+                ->where('master_id', $request['master'])
+                ->first();
+
+            $oldSlaveIds = $lease->lease_master2->dispatch_slave->pluck('slave_id')->toArray();
+            $newSlaveIds = $master_slave->dispatch_slave->pluck('slave_id')->toArray();
+
+            foreach ($oldSlaveIds as $index => $oldSlaveId) {
+                $newSlaveId = $newSlaveIds[$index] ?? null;
+                DB::table('lease_slaves')
+                    ->where('lease_id', $lease->id)
+                    ->where('slave_id', $oldSlaveId)
+                    ->update(['slave_id' => $newSlaveId]);
+            }
+
+            DB::table('leases')
+                ->where('id', $lease->id)
+                ->update(['master_id' => $request['master']]);
+
+            // dd($master_slave);
+
+            PortStock_masters::where('user_id', Auth()->user()->id)
+                ->where('master_id', $request['master'])
+                ->update(['status' => 1]);
+            toastr()->success('Swapped Successfully', 'Successfully');
+
+            return back();
+        } catch (Exception $error) {
+            toastr()->error($error->getMessage(), 'Ooops!');
+
+            return back();
+        }
+
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(SwapDevice $swapDevice)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, SwapDevice $swapDevice)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(SwapDevice $swapDevice)
+    {
+        //
+    }
+
+    public function store_old(Request $request)
     {
         // $lease = Lease::where('lease_number', $request->lease_number)->first();
         $slave = $request->input('slave_old');
@@ -165,29 +256,5 @@ class SwapDeviceController extends Controller
 
             return back();
         }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SwapDevice $swapDevice)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, SwapDevice $swapDevice)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(SwapDevice $swapDevice)
-    {
-        //
     }
 }

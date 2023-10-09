@@ -21,24 +21,25 @@ class UserController extends Controller
 
         try {
             $user = new User();
-
-            $user->name                     = $request->input('name');
-            $user->email                    = $request->input('email');
-            $user->password                 = Hash::make($request->input('password'));
-            $user->team_id                  = $request->input('team_id');
-            $user->depertment_id            = $request->input('department_id');
-            $user->location_id                = $request->input('location_id');
-            $user->sex                   = $request->input('sex');
-            $user->phone                = $request->input('phone');
-            $user->position                 = $request->input('position');
-            $user->created_by               = Auth::user()->id;
+            $user->name = $request->input('name');
+            $user->email = $request->input('email');
+            $user->password = Hash::make($request->input('password'));
+            $user->team_id = $request->input('team_id');
+            $user->depertment_id = $request->input('department_id');
+            $user->location_id = $request->input('location_id');
+            $user->sex = $request->input('sex');
+            $user->phone = $request->input('phone');
+            $user->position = $request->input('position');
+            $user->created_by = Auth::user()->id;
             // $user->created_date             = Carbon::now()->toDateTimeString();
             $user->assignRole($request->input('role'));
             $user->save();
             toastr()->success('Data has been saved successfully!', 'Successfully');
+
             return back();
         } catch (Exception $error) {
             toastr()->error($error, 'Error');
+
             return back();
         }
     }

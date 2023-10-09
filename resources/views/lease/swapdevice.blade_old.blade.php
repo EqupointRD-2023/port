@@ -42,10 +42,12 @@
                             Swap Device
                         </div>
                         <div class="form-group">
+
                             <div class="mt-3">
                                 <input type="text" readonly="" value="{{ $leases->lease_number }}"
                                     class="form-control" name="lease_number">
                             </div>
+
                         </div>
 
 
@@ -56,28 +58,18 @@
                                 <input type="text" readonly="" value="{{ $leases->master->Devicenumber }}"
                                     class="form-control" name="master_old">
                             </div>
-
-                            <div class="mt-3">
-                                <label for="">Current Slaves</label>
-                                <ul>
-                                    @foreach ($leases->devices as $key => $slaveDevice)
-                                        <li>{{ $slaveDevice->Devicenumber }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
                         </div>
 
                         <div id="" class="form-group mt-3">
                             <div class="">
                                 <label for="">Swap Master</label>
-                                <select name="master" id="masterSelect"
-                                    class="js-example-disabled-results form-control mt-2">
-                                    <option selected>select</option>
-                                    @foreach ($devices as $device)
-                                        @if ($device->device[0]->devicetype == 1)
-                                            <option value="{{ $device->device[0]->id }}"
-                                                data-dispatch-slaves="{{ json_encode($device->dispatch_slave) }}">
-                                                {{ $device->device[0]->Devicenumber }}</option>
+                                <select name="master" id="selectMultiple"
+                                    class="js-example-basic-multiple-limit form-control" data-live-search="true">
+                                    <option value="">[SELECT MASTER]</option>
+                                    @foreach ($devices as $key => $dt)
+                                        @if ($dt->device[0]->devicetype == 1)
+                                            <option value="{{ $dt->device[0]->id }}">{{ $dt->device[0]->Devicenumber }}
+                                            </option>
                                         @endif
                                     @endforeach
                                 </select>
@@ -85,16 +77,46 @@
                         </div>
 
 
-                        <div class="mt-4" id="hiddenInputWrapper">
-                            <label style="font-weight: 900">Slaves:</label>
-                            <ul id="dispatchSlavesList">
-                            </ul>
-                        </div>
 
 
+                        @foreach ($leases->devices as $key => $slaveDevice)
+                            <div class="form-group mt-3">
+                                <div class="mt-3">
+                                    <label for="">Current Slave - {{ $key + 1 }} </label>
+                                    <select class="form-control" disabled>
+                                        <option value="{{ $slaveDevice->id }}">
+                                            {{ $slaveDevice->Devicenumber }}
+                                        </option>
+                                    </select>
+                                </div>
 
+                                <select name="slave_old[]" class="form-control" hidden>
+                                    <option value="{{ $slaveDevice->id }}">
+                                        {{ $slaveDevice->Devicenumber }}
+                                    </option>
+                                </select>
+                            </div>
 
-
+                            <div id="" class="form-group mt-3">
+                                <div class="">
+                                    <label for="">Swap Slave - {{ $key + 1 }}</label>
+                                    <select name="slave[]" id="selectMultiple{{ $key + 1 }}"
+                                        class="js-example-basic-multiple-limit form-control" data-live-search="true">
+                                        data-live-search="true">
+                                        <option value="" selected>[SELECT Slave]</option>
+                                        @foreach ($devices as $key => $dt)
+                                            @if ($dt->device[0]->devicetype == 1)
+                                                @foreach ($dt->dispatch_slave as $slave)
+                                                    <option value="{{ $slave->device[0]->id }}">
+                                                        {{ $slave->device[0]->Devicenumber }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                     <div class="row">
                         <div class="form-group text-center">
@@ -111,7 +133,7 @@
 
 
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/css/bootstrap-select.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/js/bootstrap-select.js"></script>
 
@@ -139,32 +161,6 @@
 
         $(".js-example-basic-multiple-limit").select2({
             maximumSelectionLength: 100
-        });
-    </script>
-
-
-
-
-    <script>
-        console.log('Script is running');
-        $('#masterSelect').on('change', function() {
-            console.log('Dropdown change event triggered');
-            var selectedOption = $(this).find('option:selected');
-            var dispatchSlavesData = selectedOption.data('dispatch-slaves');
-
-            console.log('Selected Option Data:', dispatchSlavesData);
-
-            $('#dispatchSlavesList').empty();
-
-            // Iterate through the dispatchSlavesData and extract Devicenumber
-            for (var i = 0; i < dispatchSlavesData.length; i++) {
-                var dispatchSlave = dispatchSlavesData[i];
-                var deviceNumber = dispatchSlave.device[0].Devicenumber; // Extract Devicenumber
-                console.log('Device Number:', deviceNumber);
-
-                // Add the deviceNumber to your list
-                $('#dispatchSlavesList').append('<li>' + deviceNumber + '</li>');
-            }
         });
     </script>
 @endsection

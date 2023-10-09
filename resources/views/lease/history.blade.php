@@ -159,7 +159,6 @@
                                     <td style="text-align:right">
                                         <h5><strong>{{ $dt->master->Devicenumber }}</strong></h5>
                                     </td>
-
                                 </tr>
                                 <tr>
                                     <td>Slave #:</td>

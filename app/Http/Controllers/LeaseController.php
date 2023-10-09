@@ -22,8 +22,8 @@ class LeaseController extends Controller
      */
     public function index()
     {
-        $devices = PortStock_masters::with('device', 'dispatch_slave.device')->
-        where('user_id', auth()->user()->id)->get();
+        $devices = PortStock_masters::with('device', 'dispatch_slave.device')
+            ->where('status', 0)->where('user_id', auth()->user()->id)->get();
         // dd($devices);
         $customers = customer::all();
         $borders = Border::all();
