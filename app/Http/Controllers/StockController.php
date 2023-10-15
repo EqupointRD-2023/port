@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 namespace App\Http\Controllers;
 
@@ -41,7 +41,7 @@ class StockController extends Controller
         })->count();
 
         // dd($countSlaveJt);
-        $receive_date = requisitions::with('dispatch.device')->where('request_id', auth()->user()->id)->get();
+        $receive_date = requisitions::with('dispatch.device')->where('request_id', auth()->user()->id)->first();
         $masterHb = 0;
         $masterJt = 0;
         $slaveHb = 0;
@@ -50,7 +50,6 @@ class StockController extends Controller
         } else {
 
             $date = $receive_date[0]->dispatch;
-
             foreach ($deviceX as $portStock) {
                 $devices = $portStock->device->where('devicetype', 1)->where('devicebrand', 1);
                 $uniqueDevices = $devices->unique('id');
@@ -62,7 +61,7 @@ class StockController extends Controller
                 $masterJt += $portStock->device->where('devicetype', 1)->where('devicebrand', 2)->count();
             }
 
-            // dd($masterJt);
+            // dd($receive_date);
             return view('stock.index', [
                 'deviceX' => $deviceX,
                 'date' => $date,

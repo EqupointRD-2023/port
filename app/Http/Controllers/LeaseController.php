@@ -58,7 +58,6 @@ class LeaseController extends Controller
         $leases = Lease::with('lease_master.dispatch_slave.device', 'master', 'customer', 'border', 'tager', 'tag', 'devices')
             ->where('tager_id', auth()->user()->id)->get();
         // dd($leases);
-
         return view('lease.history', [
             'cash' => $cash,
             'bill' => $bill,
@@ -103,7 +102,7 @@ class LeaseController extends Controller
         // dd($masterNew);
 
         if ($request['currency'] == 1 && $request['cargo_type'] == 4) {
-            $price = Price::where('cargo_type', 'TANKER')->first();
+            $price = Price::where('cargo_type', 4)->first();
             // $slave = count($request->slave);
             // dd(json_encode($request->slave));
             try {

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PortStock;
+use App\Models\PortStock_masters;
 use App\Models\requisitions;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,7 +13,7 @@ class RequsitionController extends Controller
     public function index()
     {
         $requsitions = requisitions::whereDate('created_at', Carbon::today())->get();
-        $device = PortStock::where('user_id', auth()->user()->id)->where('status', 0)->count();
+        $device = PortStock_masters::where('user_id', auth()->user()->id)->where('status', 0)->count();
         $req = requisitions::whereDate('created_at', Carbon::today())->count();
         // dd($req);
         return view('requsition.requisition-port', [
